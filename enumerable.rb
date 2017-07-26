@@ -35,32 +35,63 @@ module Enumerable
 
     self
   end
-end
 
+  def my_select(&block)
+    type = self.class
+    result = []
+
+    if type == Array || type == Range
+      return "#<Enumerator: #{self}:my_select>" unless block_given?
+
+      self.my_each do |item|
+        if block.call(item)
+          result << item
+        end
+      end
+    elsif type == Hash
+      return "#<Enumerator: #{self}:my_select>" unless block_given?
+
+      result = {}
+      self.my_each do |key, value|
+        if block.call(key, value)
+          result[key] = value
+        end
+      end
+    else
+      return "Error: can't call the method #my_select on #{type}"
+    end
+
+    result
+  end
+end
 
 # checking if works
-x = [1,2,3]
-y = {key1: "Value 1", key2: "Value 2", key3: "Value 3"}
+x = [1,2,3,5,6]
+y = {key1: 1, key2: 2, key3: 3}
 z = (1..9)
 
-x.my_each_with_index do |e, i|
-  print "#{e} is the #{i}'s "
+x.my_select do |e|
+  e > 2
 end
 
-z.my_each_with_index do |e, i|
-  print "#{e} is the #{i}'s "
+z.my_select do |e|
+  e > 2
 end
 
-y.my_each_with_index do |k, v|
-  print "#{k} is a #{v}"
+y.my_select do |k, v|
+  k == :key1
 end
 
-"sting".my_each_with_index do |e|
-  print e
+y.select do |k, v|
+  v > 2
 end
 
-:symbol.my_each_with_index do |e|
-  print e
+"sting".my_select do |e|
+  e > 2
+end
+
+:symbol.my_select do |e|
+  e > 2
 end
 
 
