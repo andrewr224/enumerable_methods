@@ -83,6 +83,29 @@ module Enumerable
 
     result
   end
+
+  def my_any?(&block)
+    type = self.class
+    # returns false unless something is thruthy
+    result = false
+
+    if block_given?
+      if type == Array || type == Range
+        self.my_each do |item|
+          result = true if block.call(item)
+        end
+      elsif type == Hash
+        self.my_each do |key, value|
+          result = true if  block.call(key, value)
+        end
+      end
+    else
+      # returns true if no block passed
+      result = true
+    end
+
+    result
+  end
 end
 
 # checking if works
@@ -90,14 +113,14 @@ x = [1,2,3,5,6]
 y = {key1: 1, key2: 2, key3: 3}
 z = (1..9)
 
-x.my_all? do |e|
-  e >= 1
+x.my_any? do |e|
+  e > 1
 end
 
-z.my_all? do |e|
-  e >= 1
+z.my_any? do |e|
+  e >= 10
 end
 
-y.my_all? do |k, v|
-  v > 5
+y.my_any? do |k, v|
+  v > 2
 end
