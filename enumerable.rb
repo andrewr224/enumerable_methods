@@ -1,6 +1,6 @@
 module Enumerable
   def my_each
-    # checking for types
+    # checking for types, as it should support array, ranges, and hashes only
     type = self.class
 
     if type == Array || type == Range
@@ -20,6 +20,21 @@ module Enumerable
     self
   end
 
+  def my_each_with_index
+    type = self.class
+
+    i = 0
+    if type == Array || type == Range
+      for item in self
+        yield(item, i)
+        i+=1
+      end
+    else
+      return "Error: can't call the method #my_each_with_index on #{type}"
+    end
+
+    self
+  end
 end
 
 
@@ -28,23 +43,23 @@ x = [1,2,3]
 y = {key1: "Value 1", key2: "Value 2", key3: "Value 3"}
 z = (1..9)
 
-x.my_each do |e|
-  print e
+x.my_each_with_index do |e, i|
+  print "#{e} is the #{i}'s "
 end
 
-z.my_each do |e|
-  print e
+z.my_each_with_index do |e, i|
+  print "#{e} is the #{i}'s "
 end
 
-y.my_each do |k, v|
+y.my_each_with_index do |k, v|
   print "#{k} is a #{v}"
 end
 
-"sting".my_each do |e|
+"sting".my_each_with_index do |e|
   print e
 end
 
-:symbol.my_each do |e|
+:symbol.my_each_with_index do |e|
   print e
 end
 
