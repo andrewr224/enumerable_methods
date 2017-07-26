@@ -106,6 +106,30 @@ module Enumerable
 
     result
   end
+
+  def my_none?(&block)
+    type = self.class
+    # returns false unless something is thruthy
+    result = true
+
+    # returns false if no block passed
+    if block_given?
+      if type == Array || type == Range
+        self.my_each do |item|
+          result = false if block.call(item)
+        end
+      elsif type == Hash
+        self.my_each do |key, value|
+          result = false if  block.call(key, value)
+        end
+      end
+    else
+      result = false
+    end
+
+    result
+  end
+
 end
 
 # checking if works
@@ -113,14 +137,14 @@ x = [1,2,3,5,6]
 y = {key1: 1, key2: 2, key3: 3}
 z = (1..9)
 
-x.my_any? do |e|
-  e > 1
+x.my_none? do |e|
+  e > 5
 end
 
-z.my_any? do |e|
-  e >= 10
+z.my_none? do |e|
+  e >= 9
 end
 
-y.my_any? do |k, v|
-  v > 2
+y.my_none? do |k, v|
+  v > 12
 end
