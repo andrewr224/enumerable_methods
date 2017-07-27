@@ -36,21 +36,18 @@ module Enumerable
   end
 
   def my_select
+    return "#<Enumerator: #{self}:my_select>" unless block_given?
     type = self.class
     # create an empty array that will later be populated...
     result = []
 
     if type == Array || type == Range
-      return "#<Enumerator: #{self}:my_select>" unless block_given?
-
       self.my_each do |item|
         if yield(item)
           result << item
         end
       end
     elsif type == Hash
-      return "#<Enumerator: #{self}:my_select>" unless block_given?
-
       # or changed into a Hash and populated
       result = {}
       self.my_each do |key, value|
@@ -195,21 +192,48 @@ module Enumerable
     result
   end
 
+  def my_map
+    return "#<Enumerator: #{self}:my_map>" unless block_given?
+    type = self.class
+
+    result = []
+
+    if type == Array || type == Range
+      self.my_each do |item|
+        result << yield(item)
+      end
+    elsif type == Hash
+      self.my_each do |key, value|
+        result << yield(key, value)
+      end
+    end
+
+    result
+  end
+
+  def my_inject
+  end
+
 end
 
 # checking if works
 x = [1,2,3,5,6]
 y = {key1: 1, key2: 2, key3: 3}
 z = (1..9)
+a = {"string" => 42}
 
-x.my_count do |e|
-  e >= 2
+x.my_map do |e|
+  e * 2
 end
 
-z.my_count do |e|
-  e <= 9
+z.my_map do |e|
+  e * 2
 end
 
-y.my_count do |k, v|
-  v > -2
+a.my_map do |k, v|
+  k * 2
+end
+
+y.my_map do |k, v|
+  v * 24
 end
