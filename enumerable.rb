@@ -56,7 +56,6 @@ module Enumerable
         end
       end
     end
-
     result
   end
 
@@ -77,7 +76,6 @@ module Enumerable
         end
       end
     end
-
     result
   end
 
@@ -100,7 +98,6 @@ module Enumerable
       # returns true if no block passed
       result = true
     end
-
     result
   end
 
@@ -120,32 +117,9 @@ module Enumerable
           result = false if  yield(key, value)
         end
       end
-    elseresult = []
-
-    if type == Array || type == Range
-      return "#<Enumerator: #{self}:my_select>" unless block_given?
-
-      self.my_each do |item|
-        if yield(item)
-          result << item
-        end
-      end
-    elsif type == Hash
-      return "#<Enumerator: #{self}:my_select>" unless block_given?
-
-      # or changed into a Hash and populated
-      result = {}
-      self.my_each do |key, value|
-        if yield(key, value)
-          result[key] = value
-        end
-      end
-    end
-
-    result
+    else
       result = false
     end
-
     result
   end
 
@@ -171,8 +145,9 @@ module Enumerable
           end
         end
       end
-
       result = temp.length
+
+    # differrent behaviour when no block given
     elsif arg != nil
       if type == Array || type == Range
         temp = self.my_select do |item|
@@ -207,33 +182,49 @@ module Enumerable
         result << yield(key, value)
       end
     end
-
     result
   end
 
-  def my_inject
-  end
+  def my_inject(memo = nil)
+    return "Error: no block given" unless block_given?
+    type = self.class
+    temp = self.dup
 
+    # converting to an array if it's a Hash
+    if type == Hash
+      temp = temp.to_a
+    end
+    # if no memo given, assign it the first element of self and remove
+    # that value from self (without affecting the self)
+    unless memo
+      memo = temp.first
+      temp.shift
+    end
+
+    temp.my_each do |item|
+      memo = yield(memo, item)
+    end
+    memo
+  end
 end
 
 # checking if works
 x = [1,2,3,5,6]
 y = {key1: 1, key2: 2, key3: 3}
 z = (1..9)
-a = {"string" => 42}
 
-x.my_map do |e|
-  e * 2
+x.my_inject do |sum, e|
+  sum + e
 end
 
-z.my_map do |e|
-  e * 2
+z.my_inject(20) do |sum, e|
+  sum + e
 end
 
-a.my_map do |k, v|
-  k * 2
+y.my_inject do |k, v|
+  k.to_s + ":  " + v.to_s
 end
 
-y.my_map do |k, v|
-  v * 24
+y.my_inject("stay") do |m, k, v|
+  k.to_s  + v.to_s
 end
